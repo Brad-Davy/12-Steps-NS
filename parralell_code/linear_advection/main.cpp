@@ -14,7 +14,9 @@
 #include <array>
 #include <fstream>
 #include <vector>
-#include <hdf5.h>
+#include <mpi.h>
+
+int arraySize = 100;
 
 std::array<double, 100> createZeroArray()
 {
@@ -34,16 +36,16 @@ std::array<double, 100> createInitialArray()
     }
     return arr;
 }
-std::array<double, 100> stepForward(std::array<double, 100> arr)
+std::vector<double, 100> stepForward(std::vector<double> arr, int chunk_size)
 {
-    std::array<double, 100> arr_new = {0};
+    std::vector<double> arr_new(chunk_size, 0);
     double c = 1;
     double dx = 2.0 / 100;
     double dt = 0.01;
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < chunk_size; i++)
     {
-        if (i == 0 || i == 99)
+        if (i == 0 || i == chunk_size - 1)
             arr_new[i] = 0; // direchlet boundary conditions
         else
             arr_new[i] = arr[i] - c * dt / dx * (arr[i] - arr[i - 1]);
@@ -66,14 +68,32 @@ void writeArrayToTxt(std::array<double, 100> arr, std::string filename)
 
 int main()
 {
-    std::array<double, 100> initial_array = createInitialArray();
-    writeArrayToTxt(initial_array, "initial_array.txt");
-
+    MPI_Init(NULL, NULL);
+    int rank, size;
     int numberOfTimeSteps = 100;
+    std::array<double, 100> initial_array = createInitialArray();
+    size_t chunk_size = 100 / size;
+    std::vector<double> local_data(chunk_size, 0);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    std::cout << "Hello from rank " << rank << " of " << size << std::endl;
+
+    if (rank == 0)
+    {
+        writeArrayToTxt(initial_array, "initial_array.txt");
+    }
+
     for (int i = 0; i < numberOfTimeSteps; i++)
     {
-        initial_array = stepForward(initial_array);
+        initial_array = stepForward(local_data);
+    }
+
+    if (rank == 0)
+    {
+        writeArrayToTxt(initial_array, "final_array.txt");
     }
     writeArrayToTxt(initial_array, "final_array.txt");
+    MPI_Finalize();
     return 0;
 }
