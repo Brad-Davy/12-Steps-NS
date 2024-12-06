@@ -12,6 +12,7 @@
  */
 #include <iostream>
 #include <array>
+#include <fstream>
 
 std::array<double, 100> createZeroArray()
 {
@@ -31,10 +32,46 @@ std::array<double, 100> createInitialArray()
     }
     return arr;
 }
+std::array<double, 100> stepForward(std::array<double, 100> arr)
+{
+    std::array<double, 100> arr_new = {0};
+    double c = 1;
+    double dx = 2.0 / 100;
+    double dt = 0.01;
+
+    for (int i = 0; i < 100; i++)
+    {
+        if (i == 0 || i == 99)
+            arr_new[i] = 0; // direchlet boundary conditions
+        else
+            arr_new[i] = arr[i] - c * dt / dx * (arr[i] - arr[i - 1]);
+    }
+
+    return arr_new;
+}
+
+void writeArrayToTxt(std::array<double, 100> arr, std::string filename)
+{
+    std::ofstream file;
+    file.open(filename);
+    for (int i = 0; i < 100; i++)
+    {
+        file << arr[i] << std::endl;
+    }
+    file << "\n";
+    file.close();
+}
 
 int main()
 {
     std::array<double, 100> initial_array = createInitialArray();
-    std::cout << "initial_array: " << initial_array[20] << std::endl;
+    writeArrayToTxt(initial_array, "initial_array.txt");
+
+    int numberOfTimeSteps = 100;
+    for (int i = 0; i < numberOfTimeSteps; i++)
+    {
+        initial_array = stepForward(initial_array);
+    }
+    writeArrayToTxt(initial_array, "final_array.txt");
     return 0;
 }
