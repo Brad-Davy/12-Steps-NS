@@ -15,6 +15,7 @@
 #include <fstream>
 #include <vector>
 #include <hdf5.h>
+#include <cnpy.h>
 
 std::array<double, 100> createZeroArray()
 {
@@ -34,12 +35,13 @@ std::array<double, 100> createInitialArray()
     }
     return arr;
 }
+
 std::array<double, 100> stepForward(std::array<double, 100> arr)
 {
     std::array<double, 100> arr_new = {0};
     double c = 1;
     double dx = 2.0 / 100;
-    double dt = 0.01;
+    double dt = 0.001;
 
     for (int i = 0; i < 100; i++)
     {
@@ -52,28 +54,23 @@ std::array<double, 100> stepForward(std::array<double, 100> arr)
     return arr_new;
 }
 
-void writeArrayToTxt(std::array<double, 100> arr, std::string filename)
+void writeArrayToNumpy(std::array<double, 100> arr, std::string filename)
 {
-    std::ofstream file;
-    file.open(filename);
-    for (int i = 0; i < 100; i++)
-    {
-        file << arr[i] << std::endl;
-    }
-    file << "\n";
-    file.close();
+    std::vector<double> vec(arr.begin(), arr.end());
+    cnpy::npy_save(filename, vec, "w");
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     std::array<double, 100> initial_array = createInitialArray();
-    writeArrayToTxt(initial_array, "initial_array.txt");
-
-    int numberOfTimeSteps = 100;
+    std::cout << argv[1] << std::endl;
+    writeArrayToNumpy(initial_array, "initial_array.npy");
+    int numberOfTimeSteps = std::atoi(argv[1]);
     for (int i = 0; i < numberOfTimeSteps; i++)
     {
         initial_array = stepForward(initial_array);
     }
-    writeArrayToTxt(initial_array, "final_array.txt");
+
+    writeArrayToNumpy(initial_array, "final_array.npy");
     return 0;
 }
