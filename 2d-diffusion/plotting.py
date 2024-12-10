@@ -3,8 +3,8 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 
-intial_array = np.reshape(np.load("initial_array.npy", "r"), (100, 100))
-final_array = np.reshape(np.load("final_array.npy", "r"), (100, 100))
+intial_array = np.reshape(np.load("initial_vx.npy", "r"), (100, 100))
+final_array = np.reshape(np.load("final_vy.npy", "r"), (100, 100))
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
