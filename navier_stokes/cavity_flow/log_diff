@@ -1,0 +1,10 @@
+cnpy
+cnpy.cpp
+cnpy.h
+env
+final_array.npy
+initial_array.npy
+main
+main.cpp
+plotting.py
+run.sh
