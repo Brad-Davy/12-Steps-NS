@@ -16,6 +16,7 @@
 #include <vector>
 #include <hdf5.h>
 #include <cnpy.h>
+#include <cmath>
 
 class velocityField
 {
@@ -43,6 +44,19 @@ public:
         return arr;
     }
 
+    std::array<std::array<double, 100>, 100> combineArrays(std::array<std::array<double, 100>, 100> arr1, std::array<std::array<double, 100>, 100> arr2)
+    {
+        std::array<std::array<double, 100>, 100> arr = {0};
+        for (int i = 0; i < 100; i++)
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                arr[i][j] = std::sqrt((arr1[i][j] * arr1[i][j] + arr2[i][j] * arr2[i][j]));
+            }
+        }
+        return arr;
+    }
+
     void write2DArrayToNumpy(std::array<std::array<double, 100>, 100> arr, std::string filename)
     {
         std::vector<double> vec;
@@ -59,11 +73,9 @@ public:
 
     void writeArraysToNumpy(std::string filename)
     {
-        std::string vxFileName = filename + "_vx.npy";
-        std::string vyFileName = filename + "_vy.npy";
+        std::string vFileName = filename + "_v.npy";
         std::string pFileName = filename + "_p.npy";
-        write2DArrayToNumpy(v_x, vxFileName);
-        write2DArrayToNumpy(v_y, vyFileName);
+        write2DArrayToNumpy(combineArrays(v_x, v_y), vFileName);
         write2DArrayToNumpy(p, pFileName);
     }
 
@@ -140,7 +152,7 @@ public:
         std::array<std::array<double, 100>, 100> temporaryVyArray = {0};
         double c = 1;
         double diffusionCoefficient = 5;
-        double pressureCoefficient = 0.1;
+        double pressureCoefficient = 1;
         double dh = 2.0 / 100;
         double dt = 0.001;
 
@@ -153,7 +165,7 @@ public:
                     temporaryVxArray[i][j] = 1; // dirichlet boundary condition
                     temporaryVyArray[i][j] = 1; // dirichlet boundary condition
                 }
-                else if (i == 100 || j == 0 || j == 100)
+                else if (i == 99 || j == 0 || j == 99)
                 {
                     temporaryVxArray[i][j] = 0; // dirichlet boundary condition
                     temporaryVyArray[i][j] = 0; // dirichlet boundary condition
@@ -192,8 +204,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < numberOfTimeSteps; i++)
     {
         std::cout << "Time step: " << i << std::endl;
-        v.iteratePressureTerm();
         v.timeStep();
+        v.iteratePressureTerm();
     }
 
     // write the final array to a numpy file
