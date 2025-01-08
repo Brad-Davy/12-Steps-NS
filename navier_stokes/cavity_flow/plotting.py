@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib
+
+matplotlib.use('TkAgg')
 
 print("Plotting...")
 final_v_array = np.reshape(np.load("final_v.npy", "r"), (100, 100))

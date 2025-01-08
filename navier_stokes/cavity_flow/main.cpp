@@ -14,7 +14,6 @@
 #include <array>
 #include <fstream>
 #include <vector>
-#include <hdf5.h>
 #include <cnpy.h>
 #include <cmath>
 
@@ -154,7 +153,7 @@ public:
         double diffusionCoefficient = 5;
         double pressureCoefficient = 1;
         double dh = 2.0 / 100;
-        double dt = 0.001;
+        double dt = 0.002;
 
         for (int i = 0; i < 100; i++)
         {
@@ -184,7 +183,7 @@ public:
             }
         }
         v_x = temporaryVxArray;
-        v_y = temporaryVxArray;
+        v_y = temporaryVyArray;
     }
 };
 
